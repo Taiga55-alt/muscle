@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記録する</title>
+
+    <link rel="stylesheet" href="record.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>記録する</h1>
+
+        <section class="record-list">
+
+            <!-- 睡眠時間 -->
+            <div class="record-item">
+                <span class="record-name">・睡眠時間</span>
+
+                <div class="record-input">
+                    <input
+                        type="number"
+                        id="sleep-input"
+                        min="0"
+                        step="0.1"
+                    >
+                    <span>時間</span>
+                </div>
+            </div>
+
+
+            <!-- プロテイン -->
+            <div class="record-item">
+                <span class="record-name">・プロテイン摂取量</span>
+
+                <div class="record-input">
+                    <input
+                        type="number"
+                        id="protein-input"
+                        min="0"
+                    >
+                    <span>g</span>
+                </div>
+            </div>
+
+
+            <!-- 継続日数 -->
+            <div class="record-item">
+                <span class="record-name">・継続日数</span>
+
+                <span
+                    class="record-value"
+                    id="streak-value"
+                >
+                    0日
+                </span>
+            </div>
+
+
+            <!-- 累計セット数 -->
+            <div class="record-item">
+                <span class="record-name">・累計セット数</span>
+
+                <div class="record-input">
+                    <input
+                        type="number"
+                        id="sets-input"
+                        min="0"
+                    >
+                    <span>セット数</span>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ボタン -->
+<!-- ボタン -->
+<button id="complete-button">
+    完了
+</button>
+
+<button id="delete-button">
+    この記録を削除
+</button>
+
+    </main>
+
+    <script src="record.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筋トレ記録</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+    <h1>筋トレ記録</h1>
+    <!-- カレンダー -->
+    <section id="calendar"></section>
+    <!-- 記録ボタン -->
+    <button id="record-button">
+        記録する＋
+    </button>
+    <!-- 統計情報 -->
+    <section class="stats">
+
+    <button class="card" id="sleep">
+        <span class="card-title">睡眠時間</span>
+        <span class="card-value">-時間</span>
+    </button>
+
+    <button class="card" id="protein">
+        <span class="card-title">プロテイン摂取量</span>
+        <span class="card-value">-g</span>
+    </button>
+
+    <button class="card" id="streak">
+        <span class="card-title">継続日数</span>
+        <span class="card-value">0日</span>
+    </button>
+
+    <button class="card" id="sets">
+        <span class="card-title">累計セット数</span>
+        <span class="card-value">-セット</span>
+    </button>
+
+</section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
