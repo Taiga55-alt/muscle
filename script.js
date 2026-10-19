@@ -1,131 +1,21 @@
 const calendar = document.getElementById("calendar");
 
-
 // 現在表示している年月
 let currentYear = 2026;
-let currentMonth = 8;
-
+let currentMonth = 9;
 
 // 保存されている記録
 const records = JSON.parse(
     localStorage.getItem("records") || "{}"
 );
 
-
-// ====================
-// 継続日数を計算する
-// ====================
-
-function calculateStreak(dateKey) {
-
-    // その日に記録がなければ0日
-    if (!records[dateKey]) {
-        return 0;
-    }
-
-    let streak = 0;
-
-    let date = new Date(dateKey);
-
-
-    // 連続して記録されている日を調べる
-    while (true) {
-
-        const year = date.getFullYear();
-
-        const month =
-            String(date.getMonth() + 1).padStart(2, "0");
-
-        const day =
-            String(date.getDate()).padStart(2, "0");
-
-        const key =
-            `${year}-${month}-${day}`;
-
-
-        // 記録がなければ終了
-        if (!records[key]) {
-            break;
-        }
-
-
-        // 記録があれば1日増やす
-        streak++;
-
-
-        // 1日前に移動
-        date.setDate(date.getDate() - 1);
-    }
-
-
-    return streak;
-}
-
-
-// ====================
-// 選択した日の情報を表示
-// ====================
-
-function showStats(dateKey) {
-
-    const record = records[dateKey];
-
-
-    // 記録がない日
-    if (!record) {
-
-        document.querySelector("#sleep .card-value").textContent =
-            "-時間";
-
-        document.querySelector("#protein .card-value").textContent =
-            "-g";
-
-        document.querySelector("#streak .card-value").textContent =
-            "0日";
-
-        document.querySelector("#sets .card-value").textContent =
-            "-セット";
-
-        return;
-    }
-
-
-    // 睡眠時間
-    document.querySelector("#sleep .card-value").textContent =
-        `${record.sleep}時間`;
-
-
-    // プロテイン
-    document.querySelector("#protein .card-value").textContent =
-        `${record.protein}g`;
-
-
-    // 継続日数
-    const streak =
-        calculateStreak(dateKey);
-
-    document.querySelector("#streak .card-value").textContent =
-        `${streak}日`;
-
-
-    // セット数
-    document.querySelector("#sets .card-value").textContent =
-        `${record.sets}セット`;
-}
-
-
-// ====================
+// ========================================
 // カレンダーを表示
-// ====================
+// ========================================
+function renderCalendar() {
+    if (!calendar) return;
 
-function showCalendar() {
-
-    const lastDay = new Date(
-        currentYear,
-        currentMonth + 1,
-        0
-    ).getDate();
-
+    calendar.innerHTML = "";
 
     const firstDay = new Date(
         currentYear,
@@ -133,197 +23,235 @@ function showCalendar() {
         1
     ).getDay();
 
+    const lastDate = new Date(
+        currentYear,
+        currentMonth + 1,
+        0
+    ).getDate();
 
-    calendar.innerHTML = `
+    const title = document.getElementById("month-title");
 
-        <div class="calendar-header">
+    if (title) {
+        title.textContent =
+            `${currentYear}年${currentMonth + 1}月`;
+    }
 
-            <button id="prev-month">←</button>
+    // 曜日
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 
-            <div class="calendar-title">
-                ${currentYear}年${currentMonth + 1}月
-            </div>
+    weekdays.forEach(day => {
+        const div = document.createElement("div");
+        div.textContent = day;
+        div.classList.add("weekday");
+        calendar.appendChild(div);
+    });
 
-            <button id="next-month">→</button>
-
-        </div>
-
-
-        <div class="week">
-            <div>日</div>
-            <div>月</div>
-            <div>火</div>
-            <div>水</div>
-            <div>木</div>
-            <div>金</div>
-            <div>土</div>
-        </div>
-
-
-        <div class="days" id="days"></div>
-    `;
-
-
-    const daysContainer =
-        document.getElementById("days");
-
-
-    // 1日より前の空白
+    // 月初までの空白
     for (let i = 0; i < firstDay; i++) {
-
-        const empty =
-            document.createElement("div");
-
-        daysContainer.appendChild(empty);
+        const empty = document.createElement("div");
+        empty.classList.add("empty");
+        calendar.appendChild(empty);
     }
 
+    // 日付
+    for (let date = 1; date <= lastDate; date++) {
+        const div = document.createElement("div");
 
-    // 日付を作る
-    for (let day = 1; day <= lastDay; day++) {
+        div.textContent = date;
+        div.classList.add("day");
 
-        const button =
-            document.createElement("button");
-
-        button.classList.add("day");
-
-
-        // 日付を「2026-09-04」にする
         const dateKey =
-            `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
 
-
-        // 記録している日なら虎
+        // 記録がある日
         if (records[dateKey]) {
-
-            button.textContent =
-                `🐯 ${day}`;
-
-            button.classList.add("recorded");
-
-        } else {
-
-            button.textContent = day;
-
+            div.classList.add("has-record");
         }
 
-
-        // 今日の日付
-        const today = new Date();
-
-        const todayKey =
-            `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-
-        // 今日なら明るくする
-        if (dateKey === todayKey) {
-
-            button.classList.add("today");
-
-        }
-
-
-        // ====================
         // 日付をクリックしたとき
-        // ====================
-
-        button.addEventListener("click", function () {
-
-            if (records[dateKey]) {
-
-                // 記録済み
-                // → 閲覧画面へ
-                window.location.href =
-                    `view.html?date=${dateKey}`;
-
-            } else {
-
-                // 未記録
-                // → 新規記録画面へ
-                window.location.href =
-                    `record.html?date=${dateKey}`;
-
-            }
-
+        div.addEventListener("click", () => {
+            showStats(dateKey);
         });
 
-
-        daysContainer.appendChild(button);
+        calendar.appendChild(div);
     }
-
-
-    // ====================
-    // 前月
-    // ====================
-
-    document
-        .getElementById("prev-month")
-        .addEventListener("click", function () {
-
-            currentMonth--;
-
-            if (currentMonth < 0) {
-
-                currentMonth = 11;
-                currentYear--;
-
-            }
-
-            showCalendar();
-
-        });
-
-
-    // ====================
-    // 次月
-    // ====================
-
-    document
-        .getElementById("next-month")
-        .addEventListener("click", function () {
-
-            currentMonth++;
-
-            if (currentMonth > 11) {
-
-                currentMonth = 0;
-                currentYear++;
-
-            }
-
-            showCalendar();
-
-        });
 }
 
+// ========================================
+// 前の月
+// ========================================
+function prevMonth() {
+    currentMonth--;
 
-// ====================
-// 最初の表示
-// ====================
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
 
-showCalendar();
+    renderCalendar();
+}
 
+// ========================================
+// 次の月
+// ========================================
+function nextMonth() {
+    currentMonth++;
 
-// 今日の情報を表示
-const today = new Date();
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
 
-const todayKey =
-    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    renderCalendar();
+}
 
-showStats(todayKey);
+// ========================================
+// 記録を表示
+// ========================================
+function showStats(dateKey) {
+    const stats = document.getElementById("stats");
 
+    if (!stats) return;
 
-// ====================
-// 「記録する」ボタン
-// ====================
+    const record = records[dateKey];
 
-const recordButton =
-    document.getElementById("record-button");
+    if (!record) {
+        stats.textContent = `${dateKey}の記録はありません。`;
+        return;
+    }
 
+    const heading = document.createElement("h3");
+    heading.textContent = `${dateKey}の記録`;
 
-recordButton.addEventListener("click", function () {
+    const workout = document.createElement("p");
+    workout.textContent =
+        `トレーニング内容：${record.workout || "未記入"}`;
 
-    // 今日の新規記録画面を開く
-    window.location.href =
-        "record.html";
+    const protein = document.createElement("p");
+    protein.textContent =
+        `タンパク質摂取量：${record.protein || 0}g`;
 
-});
+    stats.replaceChildren(heading, workout, protein);
+}
+
+// ========================================
+// API機能：外部からデータを取得する
+// ========================================
+
+// API機能の画面を作成
+function createApiSection() {
+    const section = document.createElement("section");
+
+    section.id = "api-section";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "APIデータ取得";
+
+    const description = document.createElement("p");
+    description.textContent =
+        "外部サービスからデータを取得する機能です。";
+
+    const button = document.createElement("button");
+    button.id = "api-button";
+    button.textContent = "APIからデータを取得";
+
+    const status = document.createElement("p");
+    status.id = "api-status";
+    status.textContent = "ボタンを押すとデータを取得します。";
+
+    const result = document.createElement("div");
+    result.id = "api-result";
+
+    section.append(
+        heading,
+        description,
+        button,
+        status,
+        result
+    );
+
+    // カレンダーの後ろに追加
+    if (calendar && calendar.parentElement) {
+        calendar.parentElement.insertAdjacentElement(
+            "afterend",
+            section
+        );
+    } else {
+        document.body.appendChild(section);
+    }
+
+    button.addEventListener("click", getApiData);
+}
+
+// APIからデータを取得
+async function getApiData() {
+    const button = document.getElementById("api-button");
+    const status = document.getElementById("api-status");
+    const result = document.getElementById("api-result");
+
+    button.disabled = true;
+    status.textContent = "APIにリクエストを送信しています...";
+    result.replaceChildren();
+
+    try {
+        // ① 外部APIにデータを要求する
+        const response = await fetch(
+            "https://jsonplaceholder.typicode.com/posts/1"
+        );
+
+        // ② HTTP通信が成功したか確認する
+        if (!response.ok) {
+            throw new Error(
+                `HTTPエラー: ${response.status}`
+            );
+        }
+
+        // ③ JSONをJavaScriptのデータに変換する
+        const data = await response.json();
+
+        // ④ 取得したデータを画面に表示する
+        const title = document.createElement("h3");
+        title.textContent = data.title;
+
+        const body = document.createElement("p");
+        body.textContent = data.body;
+
+        result.append(title, body);
+
+        status.textContent = "データの取得に成功しました。";
+
+        // ⑤ 開発者ツールでもデータを確認できるようにする
+        console.log("APIから取得したデータ:", data);
+
+    } catch (error) {
+        console.error("APIエラー:", error);
+
+        status.textContent =
+            "データの取得に失敗しました。通信環境を確認してください。";
+
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// ========================================
+// ボタンのイベント設定
+// ========================================
+
+const prevButton = document.getElementById("prev");
+const nextButton = document.getElementById("next");
+
+if (prevButton) {
+    prevButton.addEventListener("click", prevMonth);
+}
+
+if (nextButton) {
+    nextButton.addEventListener("click", nextMonth);
+}
+
+// ========================================
+// 初期表示
+// ========================================
+
+renderCalendar();
+createApiSection();
